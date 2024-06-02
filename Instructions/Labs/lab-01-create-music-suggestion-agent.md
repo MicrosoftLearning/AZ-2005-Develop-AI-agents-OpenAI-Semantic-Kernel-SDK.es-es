@@ -39,27 +39,15 @@ Para completar el ejercicio, necesita que las herramientas siguientes estén ins
 Para estos ejercicios, hay disponible un proyecto de inicio para su uso. Siga estos pasos para configurar el proyecto de inicio:
 
 > [!IMPORTANT]
-> Debe tener instalado .NET Framework 8.0 y una cuenta de Github para completar estos pasos.
+> Debe tener instalado .NET Framework 8.0, así como las extensiones de VS Code para C# y el Administrador de paquetes NuGet.
 
-1. Abra Visual Studio Code.
+1. Descargue el archivo ZIP ubicado en `https://github.com/MicrosoftLearning/AZ-2005-Develop-AI-agents-OpenAI-Semantic-Kernel-SDK/blob/master/Allfiles/Labs/01/Lab-01-Starter.zip`.
 
-1. En la sección **Inicio**de Visual Studio Code, seleccione **Clonar repositorio de Git**.
+1. Extraiga el contenido del archivo ZIP en una ubicación fácil de encontrar y recordar, como una carpeta en el escritorio.
 
-1. En la barra de direcciones URL, escriba `https://github.com/MicrosoftLearning/MSLearn-Develop-AI-Agents-with-Azure-OpenAI-and-Semantic-Kernel-SDK.git`
+1. Abra Visual Studio Code y seleccione **Archivo** > **Abrir carpeta**.
 
-1. En el Explorador de archivos, cree una nueva carpeta en una ubicación que sea fácil de encontrar y recordar, como una carpeta en el escritorio.
-
-1. Haga clic en el botón **Seleccionar como destino del repositorio**.
-
-    Debe iniciar sesión en GitHub para clonar correctamente el proyecto.
-
-1. Abra el proyecto en Visual Studio Code.
-
-1. En Explorador, haga clic con el botón derecho en la carpeta **Lab01-create-music-recommendations-agent/Lab01-Project** y haga clic en **Abrir en terminal integrado**.
-
-1. Expanda la carpeta **Lab01-create-music-recommendations-agent/Lab01-Project**.
-
-    Debería ver un archivo "Program.cs".
+1. Vaya a la carpeta **Starter** que extrajo antes y elija **Seleccionar carpeta**.
 
 1. Abra el archivo **Program.cs** en el editor de código.
 
@@ -102,19 +90,9 @@ En este ejercicio, creará un punto de conexión para el servicio de modelo de l
 
 En este ejercicio, aprenderá a compilar el primer proyecto del SDK de kernel semántico. Aprenderá a crear un nuevo proyecto, agregar el paquete NuGet del SDK de kernel semántico y agregar una referencia al SDK de kernel semántico. Comencemos.
 
-1. Abra Visual Studio Code.
+1. Vuelva a su proyecto de Visual Studio Code.
 
-1. En Explorador, haga clic con el botón derecho en la carpeta **Lab01-create-music-recommendations-agent/Lab01-Project** y haga clic en **Abrir en terminal integrado**.
-
-1. Expanda la carpeta **Lab01-create-music-recommendations-agent/Lab01-Project**.
-
-    Debería ver un archivo "Program.cs".
-
-1. Abra el archivo **Program.cs** en el editor de código.
-
-1. Abra el terminal en el directorio del proyecto.
-
-    Para abrir el terminal, haga clic con el botón derecho en la carpeta del proyecto y seleccione "Abrir en terminal integrado"
+1. Abra el terminal; para ello, seleccione **Terminal** > **Nuevo terminal**.
 
 1. En terminal, ejecute el siguiente comando para instalar el SDK de kernel semántico:
 
@@ -198,7 +176,7 @@ En esta tarea, creará un complemento que le permite agregar canciones a la list
         // Read the existing content from the file
         string filePath = "Files/RecentlyPlayed.txt";
         string jsonContent = File.ReadAllText(filePath);
-        var RecentlyPlayed = (JsonArray) JsonNode.Parse(jsonContent);
+        var recentlyPlayed = (JsonArray) JsonNode.Parse(jsonContent);
 
         var newSong = new JsonObject
         {
