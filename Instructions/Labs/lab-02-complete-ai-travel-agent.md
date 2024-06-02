@@ -38,27 +38,15 @@ Para completar el ejercicio, necesita que las herramientas siguientes estén ins
 Para estos ejercicios, hay disponible un proyecto de inicio para su uso. Siga estos pasos para configurar el proyecto de inicio:
 
 > [!IMPORTANT]
-> Debe tener instalado .NET Framework 8.0 y una cuenta de Github para completar estos pasos.
+> Debe tener instalado .NET Framework 8.0, así como las extensiones de VS Code para C# y el Administrador de paquetes NuGet.
 
-1. Abra Visual Studio Code.
+1. Descargue el archivo ZIP ubicado en `https://github.com/MicrosoftLearning/AZ-2005-Develop-AI-agents-OpenAI-Semantic-Kernel-SDK/blob/master/Allfiles/Labs/02/Lab-02-Starter.zip`.
 
-1. En la sección **Inicio**de Visual Studio Code, seleccione **Clonar repositorio de Git**.
+1. Extraiga el contenido del archivo ZIP en una ubicación fácil de encontrar y recordar, como una carpeta en el escritorio.
 
-1. En la barra de direcciones URL, escriba `https://github.com/MicrosoftLearning/MSLearn-Develop-AI-Agents-with-Azure-OpenAI-and-Semantic-Kernel-SDK.git`
+1. Abra Visual Studio Code y seleccione **Archivo** > **Abrir carpeta**.
 
-1. En el Explorador de archivos, cree una nueva carpeta en una ubicación que sea fácil de encontrar y recordar, como una carpeta en el escritorio.
-
-1. Haga clic en el botón **Seleccionar como destino del repositorio**.
-
-    Debe iniciar sesión en GitHub para clonar correctamente el proyecto.
-
-1. Abra el proyecto en Visual Studio Code.
-
-1. En Explorador, haga clic con el botón derecho en la carpeta **Lab01-create-music-recommendations-agent/Lab01-Project** y haga clic en **Abrir en terminal integrado**.
-
-1. Expanda la carpeta **Lab01-create-music-recommendations-agent/Lab01-Project**.
-
-    Debería ver un archivo "Program.cs".
+1. Vaya a la carpeta **Starter** que extrajo antes y elija **Seleccionar carpeta**.
 
 1. Abra el archivo **Program.cs** en el editor de código.
 
