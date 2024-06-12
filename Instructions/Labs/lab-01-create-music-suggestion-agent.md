@@ -74,7 +74,7 @@ En este ejercicio, creará un punto de conexión para el servicio de modelo de l
 
 1. Seleccione **Crear nueva implementación** y, después, **Implementar modelo**.
 
-1. En **Seleccionar un modelo**, seleccione **gpt-35-turbo-16k**.
+1. En **Seleccionar un modelo**, selecciona **gpt-35-turbo-16k**.
 
     Uso de la versión predeterminada del modelo
 
@@ -104,10 +104,10 @@ En este ejercicio, aprenderá a compilar el primer proyecto del SDK de kernel se
     using Microsoft.SemanticKernel;
 
     var builder = Kernel.CreateBuilder();
-    builder.Services.AddAzureOpenAIChatCompletion(
-        "your-resource-name",
+    builder.AddAzureOpenAIChatCompletion(
+        "your-deployment-name",
         "your-endpoint",
-        "your-resource-key",
+        "your-api-key",
         "deployment-model");
     var kernel = builder.Build();
     ```
@@ -554,10 +554,10 @@ En esta tarea, creará una función a partir de la plantilla de plan Handlebars 
 
     ```c#
     var builder = Kernel.CreateBuilder();
-    builder.Services.AddAzureOpenAIChatCompletion(
-        "your-resource-name",
+    builder.AddAzureOpenAIChatCompletion(
+        "your-deployment-name",
         "your-endpoint",
-        "your-resource-key",
+        "your-api-key",
         "deployment-model");
     var kernel = builder.Build();
     kernel.ImportPluginFromType<MusicLibraryPlugin>();
