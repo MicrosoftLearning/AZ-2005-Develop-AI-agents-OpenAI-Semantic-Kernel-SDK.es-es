@@ -38,13 +38,13 @@ Para completar el ejercicio, necesita que las herramientas siguientes estén ins
 Para estos ejercicios, hay disponible un proyecto de inicio para su uso. Siga estos pasos para configurar el proyecto de inicio:
 
 > [!IMPORTANT]
-> Debe tener instalado .NET Framework 8.0, así como las extensiones de VS Code para C# y el Administrador de paquetes NuGet.
+> Debe tener instalado .NET Framework 8.0, así como las extensiones de VS Code para C# y el Administrador de paquetes NuGet.
 
 1. Descargue el archivo ZIP ubicado en `https://github.com/MicrosoftLearning/AZ-2005-Develop-AI-agents-OpenAI-Semantic-Kernel-SDK/blob/master/Allfiles/Labs/02/Lab-02-Starter.zip`.
 
 1. Extraiga el contenido del archivo ZIP en una ubicación fácil de encontrar y recordar, como una carpeta en el escritorio.
 
-1. Abra Visual Studio Code y seleccione **Archivo** > **Abrir carpeta**.
+1. Abra Visual Studio Code y seleccione **Archivo** > **Abrir carpeta**.
 
 1. Vaya a la carpeta **Starter** que extrajo antes y elija **Seleccionar carpeta**.
 
@@ -73,7 +73,7 @@ En este ejercicio, creará un punto de conexión para el servicio de modelo de l
 
 1. Seleccione **Crear nueva implementación** y, después, **Implementar modelo**.
 
-1. En **Seleccionar un modelo**, seleccione **gpt-35-turbo-16k**.
+1. En **Seleccionar un modelo**, selecciona **gpt-35-turbo-16k**.
 
     Uso de la versión predeterminada del modelo
 
@@ -92,7 +92,7 @@ En este ejercicio, creará un punto de conexión para el servicio de modelo de l
     ```csharp
     string yourDeploymentName = "";
     string yourEndpoint = "";
-    string yourKey = "";
+    string yourApiKey = "";
     ```
 
     > [!NOTE]
