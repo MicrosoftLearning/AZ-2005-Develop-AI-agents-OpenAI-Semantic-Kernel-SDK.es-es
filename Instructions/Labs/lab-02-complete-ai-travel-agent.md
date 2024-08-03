@@ -71,9 +71,9 @@ En este ejercicio, creará un punto de conexión para el servicio de modelo de l
 
 :::image type="content" source="../media/model-deployments.png" alt-text="Captura de pantalla de la página Implementaciones de Azure OpenAI.":::
 
-1. Seleccione **Crear nueva implementación** y, después, **Implementar modelo**.
+1. Selecciona **Crear nueva implementación** y después **+Crear nueva implementación**.
 
-1. En **Seleccionar un modelo**, selecciona **gpt-35-turbo-16k**.
+1. En la ventana emergente **Implementar modelo**, selecciona **gpt-35-turbo-16k**.
 
     Uso de la versión predeterminada del modelo
 
@@ -108,6 +108,8 @@ En esta tarea, creará una función nativa que puede convertir una cantidad de u
 
     ```c#
     using AITravelAgent;
+    using System.ComponentModel;
+    using Microsoft.SemanticKernel;
 
     class CurrencyConverter
     {
@@ -247,6 +249,7 @@ En esta tarea, ejecute su aplicación y verifique que su código funciona correc
 
     ```c#
     kernel.ImportPluginFromType<CurrencyConverter>();
+    kernel.ImportPluginFromType<ConversationSummaryPlugin>();
     var prompts = kernel.ImportPluginFromPromptDirectory("Prompts");
 
     var result = await kernel.InvokeAsync(prompts["GetTargetCurrencies"],
@@ -281,6 +284,7 @@ En este ejercicio, detectará la intención del usuario y enrutará la conversac
 
     ```c#
     kernel.ImportPluginFromType<CurrencyConverter>();
+    kernel.ImportPluginFromType<ConversationSummaryPlugin>();
     var prompts = kernel.ImportPluginFromPromptDirectory("Prompts");
 
     Console.WriteLine("What would you like to do?");
@@ -331,6 +335,7 @@ En este ejercicio, detectará la intención del usuario y enrutará la conversac
 
     ```c#
     kernel.ImportPluginFromType<CurrencyConverter>();
+    kernel.ImportPluginFromType<ConversationSummaryPlugin>();
     var prompts = kernel.ImportPluginFromPromptDirectory("Prompts");
 
     OpenAIPromptExecutionSettings settings = new()
@@ -526,12 +531,12 @@ En este ejercicio, usará el historial de conversaciones para proporcionar conte
           "description": "The destination a user wants to visit",
           "required": true
       }
-  ]
-  ```
+   ]
+   ```
 
 1. Vaya a **Prompts/SuggestActivities/skprompt.txt** y abra el archivo
 
-1. Agregue un mensaje para usar el historial de chats:
+1. Reemplaza la mitad inicial del mensaje por la siguiente solicitud del sistema que usa la variable de historial de chat:
 
     ```html 
     You are an experienced travel agent. 
