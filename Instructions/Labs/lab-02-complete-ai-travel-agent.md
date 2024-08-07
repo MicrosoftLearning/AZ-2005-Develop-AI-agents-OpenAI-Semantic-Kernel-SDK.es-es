@@ -29,8 +29,8 @@ Al completar este laboratorio, realizará lo siguiente:
 
 Para completar el ejercicio, necesita que las herramientas siguientes estén instaladas en el sistema:
 
-* [Visual Studio Code.](https://code.visualstudio.com)
-* [El SDK de .NET 7.0 más reciente.](https://dotnet.microsoft.com/download/dotnet/7.0)
+* [Visual Studio Code](https://code.visualstudio.com)
+* [El SDK de .NET 8.0 más reciente](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 * La [extensión de C#](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp) para Visual Studio Code.
 
 ### Preparación del entorno de desarrollo
@@ -40,7 +40,11 @@ Para estos ejercicios, hay disponible un proyecto de inicio para su uso. Siga es
 > [!IMPORTANT]
 > Debe tener instalado .NET Framework 8.0, así como las extensiones de VS Code para C# y el Administrador de paquetes NuGet.
 
-1. Descargue el archivo ZIP ubicado en `https://github.com/MicrosoftLearning/AZ-2005-Develop-AI-agents-OpenAI-Semantic-Kernel-SDK/blob/master/Allfiles/Labs/02/Lab-02-Starter.zip`.
+1. Pega el siguiente vínculo en una nueva ventana del explorador:
+   
+     `https://github.com/MicrosoftLearning/AZ-2005-Develop-AI-agents-OpenAI-Semantic-Kernel-SDK/blob/master/Allfiles/Labs/02/Lab-02-Starter.zip`
+
+1. Descarga el archivo ZIP haciendo clic en el botón <kbd>...</kbd> situado en la parte superior derecha de la página, o pulsa <kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>S</kbd>.
 
 1. Extraiga el contenido del archivo ZIP en una ubicación fácil de encontrar y recordar, como una carpeta en el escritorio.
 
@@ -49,6 +53,9 @@ Para estos ejercicios, hay disponible un proyecto de inicio para su uso. Siga es
 1. Vaya a la carpeta **Starter** que extrajo antes y elija **Seleccionar carpeta**.
 
 1. Abra el archivo **Program.cs** en el editor de código.
+
+> [!NOTE]
+> Si se te pide que confíes en la carpeta, selecciona **Yes, I trust the authors**
 
 ## Ejercicio 1: Creación de un complemento con el SDK de kernel semántico
 
@@ -102,9 +109,9 @@ En este ejercicio, creará un punto de conexión para el servicio de modelo de l
 
 En esta tarea, creará una función nativa que puede convertir una cantidad de una divisa base a una divisa de destino.
 
-1. Cree un nuevo archivo denominado `CurrencyConverter.cs` en la carpeta **Plugins/ConvertCurrency**
+1. Crea un nuevo archivo denominado **CurrencyConverter.cs** en la carpeta **Plugins/ConvertCurrency**
 
-1. En el archivo `CurrencyConverter.cs`, agregue el código siguiente para crear una función de complemento:
+1. En el archivo **CurrencyConverter.cs**, agrega el siguiente código para crear una función de complemento:
 
     ```c#
     using AITravelAgent;
@@ -122,9 +129,9 @@ En esta tarea, creará una función nativa que puede convertir una cantidad de u
     }
     ```
 
-    En este código, se usa el decorador para declarar la función nativa `KernelFunction`. También se usa el decorador `Description` para agregar una descripción de lo que hace la función. Puede usar `Currency.Currencies` para obtener un diccionario de divisas y sus tipos de cambio. A continuación, agregue alguna lógica para convertir una cantidad determinada de una divisa a otra.
+    En este código, usas el decorador **KernelFunction** para declarar tu función nativa. También usas el decorador **Descripción** para agregar una descripción de lo que hace la función. Puedes usar **Currency.Currencies** para obtener un diccionario de divisas y sus tipos de cambio. A continuación, agregue alguna lógica para convertir una cantidad determinada de una divisa a otra.
 
-1. Modifique la función `ConvertAmount` con el código siguiente:
+1. Modifica tu función **ConvertirImporte** con el siguiente código:
 
     ```c#
     [KernelFunction, Description("Convert an amount from one currency to another")]
@@ -156,9 +163,9 @@ En esta tarea, creará una función nativa que puede convertir una cantidad de u
     }
     ```
 
-    En este código, se usa el diccionario `Currency.Currencies` para obtener el objeto `Currency` de las divisas base y de destino. A continuación, use el objeto `Currency` para convertir la cantidad de la divisa base a la divisa de destino. Por último, se devuelve una cadena con la cantidad convertida. A continuación, vamos a probar el complemento.
+    En este código, se usa el diccionario **Currency.Currencies** para obtener el objeto **Currency** de las divisas de destino y base. A continuación, se usa el objeto **Divisa** para convertir la cantidad de la divisa base a la divisa de destino. Por último, se devuelve una cadena con la cantidad convertida. A continuación, vamos a probar el complemento.
 
-1. En el archivo `Program.cs`, importe e invoque la nueva función del complemento con el código siguiente:
+1. En el archivo **Program.cs**, importa e invoca tu nueva función de complemento con el siguiente código:
 
     ```c#
     kernel.ImportPluginFromType<CurrencyConverter>();
@@ -177,7 +184,7 @@ En esta tarea, creará una función nativa que puede convertir una cantidad de u
     Console.WriteLine(result);
     ```
 
-    En este código, usará el método para importar el complemento `ImportPluginFromType`. Después, use el método `InvokeAsync` para invocar la función del complemento. El método `InvokeAsync` toma el nombre del complemento, el nombre de la función y un diccionario de parámetros. Por último, imprima el resultado en la consola. A continuación, ejecute el código para asegurarse de que funciona.
+    En este código, usas el método **ImportPluginFromType** para importar tu complemento. Luego usas el método **InvokeAsync** para invocar la función de tu complemento. El método **InvokeAsync** toma el nombre del complemento, el nombre de la función y un diccionario de parámetros. Por último, imprima el resultado en la consola. A continuación, ejecute el código para asegurarse de que funciona.
 
 1. En el terminal, escriba `dotnet run`. Debería ver la siguiente salida:
 
@@ -191,11 +198,11 @@ En esta tarea, creará una función nativa que puede convertir una cantidad de u
 
 En esta tarea, creará un mensaje que analiza la entrada del usuario para identificar la divisa de destino, la divisa base y la cantidad que se va a convertir.
 
-1. Cree una nueva carpeta denominada `GetTargetCurrencies` en la carpeta **Prompts**
+1. Creación de una nueva carpeta denominada **GetTargetCurrencies** en la carpeta **Prompts**
 
-1. En la carpeta `GetTargetCurrencies`, cree un nuevo archivo denominado `config.json`
+1. En la carpeta **GetTargetCurrencies**, crea un nuevo archivo denominado **config.json**
 
-1. Escriba el texto siguiente en el archivo `config.json`:
+1. Introduce el siguiente texto en el archivo **config.json**:
 
     ```output
     {
@@ -218,9 +225,9 @@ En esta tarea, creará un mensaje que analiza la entrada del usuario para identi
     }
     ```
 
-1. En la carpeta `GetTargetCurrencies`, cree un nuevo archivo denominado `skprompt.txt`
+1. En la carpeta **GetTargetCurrencies**, crea un nuevo archivo denominado **skprompt.txt**
 
-1. Pegue el texto siguiente en el archivo `skprompt.txt`:
+1. Introduce el siguiente texto en el archivo **skprompt.txt**:
 
     ```html
     <message role="system">Identify the target currency, base currency, and 
@@ -245,7 +252,7 @@ En esta tarea, creará un mensaje que analiza la entrada del usuario para identi
 
 En esta tarea, ejecute su aplicación y verifique que su código funciona correctamente. 
 
-1. Pruebe la nueva solicitud actualizando el archivo `Program.cs` con el código siguiente:
+1. Prueba tu nueva solicitud actualizando tu archivo **Program.cs** con el siguiente código:
 
     ```c#
     kernel.ImportPluginFromType<CurrencyConverter>();
@@ -268,9 +275,9 @@ En esta tarea, ejecute su aplicación y verifique que su código funciona correc
     ```
 
     > [!NOTE]
-    > Si el código no genera la salida esperada, puede revisar el código en la carpeta **Solution**. Quizá tenga que cambiar la indicación en el archivo `skprompt.txt` para generar resultados más exactos.
+    > Si el código no genera la salida esperada, puede revisar el código en la carpeta **Solution**. Es posible que tengas que ajustar la solicitud en el archivo **skprompt.txt** para generar resultados más exactos.
 
-Ahora tiene un complemento que puede convertir una cantidad de una divisa a otra y una solicitud que se puede usar para analizar la entrada del usuario en un formato que la función `ConvertAmount` puede usar. Esto permitirá a los usuarios convertir fácilmente importes de divisa mediante el agente de viajes de IA.
+Ahora tienes un complemento que puede convertir una cantidad de una divisa a otra, y una solicitud que se puede usar para analizar la entrada del usuario en un formato que la función **ConvertAmount** puede usar. Esto permitirá a los usuarios convertir fácilmente importes de divisa mediante el agente de viajes de IA.
 
 ## Ejercicio 2: Automatización de la selección de complementos en función de la intención del usuario
 
@@ -280,7 +287,7 @@ En este ejercicio, detectará la intención del usuario y enrutará la conversac
 
 ### Tarea 1: Uso del complemento GetIntent
 
-1. Actualice el archivo `Program.cs` con el código siguiente:
+1. Actualice el archivo **Program.cs** con el código siguiente:
 
     ```c#
     kernel.ImportPluginFromType<CurrencyConverter>();
@@ -297,7 +304,7 @@ En este ejercicio, detectará la intención del usuario y enrutará la conversac
 
     ```
 
-    En este código, usará la solicitud de `GetIntent` para detectar la intención del usuario. Después almacenará la intención en una variable llamada `intent`. A continuación, enruta la intención a su complemento `CurrencyConverter`.
+    En este código, se usa la solicitud **GetIntent** para detectar la intención del usuario. A continuación, almacenaras la intención en una variable denominada **intent**. A continuación, enruta la intención a tu complemento **CurrencyConverter**.
 
 1. Agregue el siguiente código al archivo `Program.cs`:
 
@@ -325,13 +332,13 @@ En este ejercicio, detectará la intención del usuario y enrutará la conversac
     }
     ```
 
-    El complemento `GetIntent` devuelve los siguientes valores: ConvertCurrency, SuggestDestinations, SuggestActivities, Translate, HelpfulPhrases, Unknown. Usa una instrucción `switch` para enrutar la intención del usuario al complemento apropiado. 
+    El complemento **GetIntent** devuelve los siguientes valores: ConvertCurrency, SuggestDestinations, SuggestActivities, Translate, HelpfulPhrases, Unknown. Usas una instrucción de **modificador** para enrutar la intención del usuario al complemento apropiado. 
     
-    Si la intención del usuario es convertir moneda, usa la solicitud de `GetTargetCurrencies` para recuperar la información de la moneda. Después usará el complemento `CurrencyConverter` para convertir el importe.
+    Si la intención del usuario es convertir divisas, usa la solicitud **GetTargetCurrencies** para recuperar la información de la divisa. A continuación, usa el complemento **CurrencyConverter** para convertir el importe.
 
     A continuación, agregará algunos casos para controlar las demás intenciones. Por ahora, vamos a usar la capacidad de llamada de función automática del SDK de Semantic Kernel para enrutar la intención a los complementos disponibles.
 
-1. Cree la configuración de llamada de función automática añadiendo el siguiente código a su archivo `Program.cs`:
+1. Crea la configuración de llamada de función automática agregando el siguiente código a tu archivo **Program.cs**:
 
     ```c#
     kernel.ImportPluginFromType<CurrencyConverter>();
@@ -353,7 +360,7 @@ En este ejercicio, detectará la intención del usuario y enrutará la conversac
 
     A continuación, agregue casos a las instrucciones del conmutador para las otras intenciones.
 
-1. Actualice el archivo `Program.cs` con el código siguiente:
+1. Actualice el archivo **Program.cs** con el código siguiente:
 
     ```c#
     switch (intent) {
@@ -373,9 +380,9 @@ En este ejercicio, detectará la intención del usuario y enrutará la conversac
     }
     ```
 
-    En este código, usa la configuración de `AutoInvokeKernelFunctions` para llamar automáticamente a las funciones y solicitudes que están referenciadas en su kernel. Si la intención del usuario es convertir divisas, el complemento `CurrencyConverter` realiza su tarea. 
+    En este código, usa la configuración **AutoInvokeKernelFunctions** para llamar automáticamente a las funciones y solicitudes a las que se hace referencia en tu kernel. Si la intención del usuario es convertir divisas, el complemento **CurrencyConverter** realiza su tarea. 
     
-    Si la intención del usuario es obtener sugerencias de destinos o actividades, traducir una frase u obtener frases útiles en un idioma, la configuración de `AutoInvokeKernelFunctions` llama automáticamente a los complementos existentes que se incluyeron en el código del proyecto.
+    Si la intención del usuario es obtener sugerencias de destinos o actividades, traducir una frase u obtener frases útiles en un idioma, la configuración **AutoInvokeKernelFunctions** llama automáticamente a los complementos existentes que se incluyeron en el código del proyecto.
 
     También puede agregar código para ejecutar la entrada del usuario como una solicitud al modelo de lenguaje de gran tamaño (LLM) si no entra en ninguno de estos casos de intención.
 
@@ -455,7 +462,7 @@ A continuación, modifiquemos la lógica de enrutamiento para proporcionar un hi
 
 En este ejercicio, usará el historial de conversaciones para proporcionar contexto al modelo de lenguaje de gran tamaño (LLM). También ajustará el código para que permita al usuario continuar la conversación, al igual que un bot de chat real. Comencemos.
 
-1. Modifique el código para que use un bucle `do`-`while` para aceptar la entrada del usuario:
+1. Modifica el código para que use un bucle do-while para aceptar la entrada del usuario:
 
     ```c#
     string input;
@@ -472,7 +479,7 @@ En este ejercicio, usará el historial de conversaciones para proporcionar conte
 
     Ahora puede mantener la conversación en marcha hasta que el usuario escriba una línea en blanco.
 
-1. Capture detalles sobre el viaje del usuario modificando el caso `SuggestDestinations`:
+1. Captura detalles sobre el viaje del usuario modificando el caso **SuggestDestinations**:
 
     ```c#
     case "SuggestDestinations":
@@ -482,7 +489,7 @@ En este ejercicio, usará el historial de conversaciones para proporcionar conte
         break;
     ```
 
-1. Use los detalles del viaje en el caso `SuggestActivities` con el código siguiente:
+1. Usa los detalles del viaje en el caso **SugerirActividades** con el siguiente código:
 
     ```c#
      case "SuggestActivities":
@@ -493,9 +500,9 @@ En este ejercicio, usará el historial de conversaciones para proporcionar conte
         break;
     ```
 
-    En este código, usará la función integrada `SummarizeConversation` para resumir el chat con el usuario. A continuación, vamos a usar el resumen para sugerir actividades en el destino.
+    En este código, usas la función integrada **SummarizeConversation** para resumir el chat con el usuario. A continuación, vamos a usar el resumen para sugerir actividades en el destino.
 
-1. Extienda el caso `SuggestActivities` con el código siguiente:
+1. Extiende el caso **SugerirActividades** con el siguiente código:
 
     ```c#
     var activities = await kernel.InvokePromptAsync(
@@ -513,11 +520,11 @@ En este ejercicio, usará el historial de conversaciones para proporcionar conte
     break;
     ```
 
-    En este código, agregará `input` y `chatSummary` como argumentos de kernel. Después, el kernel invoca la solicitud y la enruta al complemento `SuggestActivities`. Además, anexará la entrada del usuario y la respuesta del asistente al historial de chat, y se mostrarán los resultados. Después, debe agregar la variable `chatSummary` al complemento `SuggestActivities`.
+    En este código, agregas **input** y **chatSummary** como argumentos de kernel. Después el kernel invoca la solicitud y la enruta al complemento **SuggestActivities**. Además, anexará la entrada del usuario y la respuesta del asistente al historial de chat, y se mostrarán los resultados. A continuación, debes agregar la variable **chatSummary** al complemento **SuggestActivities**.
 
 1. Vaya a **Prompts/SuggestActivities/config.json** y abra el archivo en Visual Studio Code
 
-1. En `input_variables`, agregue una variable para el historial de chat:
+1. En **input_variables**, agrega una variable para el historial de chat:
 
     ```json
     "input_variables": [
