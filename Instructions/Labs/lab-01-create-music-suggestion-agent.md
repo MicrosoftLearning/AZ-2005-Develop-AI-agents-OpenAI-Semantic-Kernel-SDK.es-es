@@ -145,7 +145,7 @@ En esta tarea, creará un complemento que le permite agregar canciones a la list
 
 1. Cree una nueva carpeta en el directorio "Lab01-Project" y asígnela el nombre "Complementos".
 
-1. En la carpeta "Plugins", cree un nuevo archivo "MusicLibrary.cs"
+1. En la carpeta "Plugins", crea un nuevo archivo "MusicLibraryPlugin.cs"
 
     En primer lugar, cree algunas funciones rápidas para obtener y agregar canciones a la lista de "Reproducciones recientes" del usuario.
 
@@ -232,6 +232,9 @@ En esta tarea, creará un complemento que le permite agregar canciones a la list
     ```
 
     Si abres "Files/RececentlyPlayed.txt", deberías ver la nueva canción agregada a la lista.
+
+> [!NOTE]
+> Si el terminal muestra advertencias de valores NULL, puedes omitirlos, ya que no afectarán al resultado.
 
 ### Tarea 2: Proporcionar recomendaciones de canciones personalizadas
 
