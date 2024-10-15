@@ -186,6 +186,8 @@ En esta tarea, creará una función nativa que puede convertir una cantidad de u
 
     En este código, usas el método **ImportPluginFromType** para importar tu complemento. Luego usas el método **InvokeAsync** para invocar la función de tu complemento. El método **InvokeAsync** toma el nombre del complemento, el nombre de la función y un diccionario de parámetros. Por último, imprima el resultado en la consola. A continuación, ejecute el código para asegurarse de que funciona.
 
+1. Abre el terminal seleccionando Terminal > Nuevo terminal.
+
 1. En el terminal, escriba `dotnet run`. Debería ver la siguiente salida:
 
     ```output
