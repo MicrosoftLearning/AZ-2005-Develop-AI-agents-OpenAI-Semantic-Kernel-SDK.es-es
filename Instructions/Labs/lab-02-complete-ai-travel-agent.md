@@ -74,566 +74,261 @@ En este ejercicio, creará un punto de conexión para el servicio de modelo de l
 
 1. Tras crear el nuevo recurso, seleccione **Ir al recurso**.
 
-1. En la página **Información general**, seleccione **Ir a Azure OpenAI Studio**.
+1. En la página **Información general**, selecciona **Ir al portal de Azure Foundry**.
 
-:::image type="content" source="../media/model-deployments.png" alt-text="Captura de pantalla de la página Implementaciones de Azure OpenAI.":::
+1. Selecciona **Crear nueva implementación** y después **desde modelos base**.
 
-1. Selecciona **Crear nueva implementación** y después **+Crear nueva implementación**.
+1. En la lista de modelos, selecciona **gpt-35-turbo-16k**.
 
-1. En la ventana emergente **Implementar modelo**, selecciona **gpt-35-turbo-16k**.
+1. Seleccione **Confirmar**
 
-    Uso de la versión predeterminada del modelo
+1. Escribe un nombre para la implementación y deja las opciones predeterminadas.
 
-1. Escriba un nombre para la implementación
-
-1. Cuando se complete la implementación, vuelva al recurso de Azure OpenAI.
+1. Cuando se complete la implementación, vuelve a tu recurso de Azure OpenAI en Azure Portal.
 
 1. En **Administración de recursos**, vaya a **Claves y puntos de conexión**.
 
-    Usará estos valores en la siguiente tarea para compilar el kernel. Recuerde mantener sus claves privadas y seguras.
+    Usará los datos en la siguiente tarea para compilar el kernel. Recuerde mantener sus claves privadas y seguras.
 
-1. Abra el archivo **Program.cs** en Visual Studio Code.
+### Tarea 2: Crear un complemento nativo
 
-1. Actualice las siguientes variables con el nombre de implementación de Azure Open AI Services, la clave de API y el punto de conexión
+En esta tarea, crearás un complemento de función nativo que puede convertir una cantidad de una divisa base a una divisa de destino.
 
-    ```csharp
-    string yourDeploymentName = "";
-    string yourEndpoint = "";
-    string yourApiKey = "";
+1. Vuelva a su proyecto de Visual Studio Code.
+
+1. Abre el archivo **appsettings.json** y actualiza los valores con tu Id. de modelo, punto de conexión y clave de API de los servicios de Azure OpenAI.
+
+    ```json
+    {
+        "modelId": "gpt-35-turbo-16k",
+        "endpoint": "",
+        "apiKey": ""
+    }
     ```
 
-    > [!NOTE]
-    > El modelo de implementación debe ser "gpt-35-turbo-16k" para que funcionen algunas de las características del SDK de Semantic Kernel.
-
-### Tarea 2: Creación de una función nativa
-
-En esta tarea, creará una función nativa que puede convertir una cantidad de una divisa base a una divisa de destino.
-
-1. Crea un nuevo archivo denominado **CurrencyConverter.cs** en la carpeta **Plugins/ConvertCurrency**
+1. Ve al archivo denominado **CurrencyConverter.cs** en la carpeta **Plugins/ConvertCurrency**
 
 1. En el archivo **CurrencyConverter.cs**, agrega el siguiente código para crear una función de complemento:
 
     ```c#
-    using AITravelAgent;
-    using System.ComponentModel;
-    using Microsoft.SemanticKernel;
-
     class CurrencyConverter
     {
-        [KernelFunction, 
-        Description("Convert an amount from one currency to another")]
-        public static string ConvertAmount()
+        [KernelFunction("convert_currency")]
+        [Description("Converts an amount from one currency to another, for example USD to EUR")]
+        public static decimal ConvertCurrency(decimal amount, string fromCurrency, string toCurrency)
         {
-            var currencyDictionary = Currency.Currencies;
+            decimal exchangeRate = GetExchangeRate(fromCurrency, toCurrency);
+            return amount * exchangeRate;
         }
     }
     ```
 
-    En este código, usas el decorador **KernelFunction** para declarar tu función nativa. También usas el decorador **Descripción** para agregar una descripción de lo que hace la función. Puedes usar **Currency.Currencies** para obtener un diccionario de divisas y sus tipos de cambio. A continuación, agregue alguna lógica para convertir una cantidad determinada de una divisa a otra.
+    En este código, usas el decorador **KernelFunction** para declarar tu función nativa. También usas el decorador **Descripción** para agregar una descripción de lo que hace la función. A continuación, agrega alguna lógica para convertir una cantidad determinada de una divisa a otra.
 
-1. Modifica tu función **ConvertirImporte** con el siguiente código:
-
-    ```c#
-    [KernelFunction, Description("Convert an amount from one currency to another")]
-    public static string ConvertAmount(
-        [Description("The target currency code")] string targetCurrencyCode, 
-        [Description("The amount to convert")] string amount, 
-        [Description("The starting currency code")] string baseCurrencyCode)
-    {
-        var currencyDictionary = Currency.Currencies;
-        
-        Currency targetCurrency = currencyDictionary[targetCurrencyCode];
-        Currency baseCurrency = currencyDictionary[baseCurrencyCode];
-
-        if (targetCurrency == null)
-        {
-            return targetCurrencyCode + " was not found";
-        }
-        else if (baseCurrency == null)
-        {
-            return baseCurrencyCode + " was not found";
-        }
-        else
-        {
-            double amountInUSD = Double.Parse(amount) * baseCurrency.USDPerUnit;
-            double result = amountInUSD * targetCurrency.UnitsPerUSD;
-            return @$"${amount} {baseCurrencyCode} is approximately 
-                {result.ToString("C")} in {targetCurrency.Name}s ({targetCurrencyCode})";
-        }
-    }
-    ```
-
-    En este código, se usa el diccionario **Currency.Currencies** para obtener el objeto **Currency** de las divisas de destino y base. A continuación, se usa el objeto **Divisa** para convertir la cantidad de la divisa base a la divisa de destino. Por último, se devuelve una cadena con la cantidad convertida. A continuación, vamos a probar el complemento.
-
-1. En el archivo **Program.cs**, importa e invoca tu nueva función de complemento con el siguiente código:
+1. En el archivo **Program.cs**, importa el nuevo complemento con el siguiente código:
 
     ```c#
     kernel.ImportPluginFromType<CurrencyConverter>();
-    kernel.ImportPluginFromType<ConversationSummaryPlugin>();
-    var prompts = kernel.ImportPluginFromPromptDirectory("Prompts");
-
-    var result = await kernel.InvokeAsync("CurrencyConverter", 
-        "ConvertAmount", 
-        new() {
-            {"targetCurrencyCode", "USD"}, 
-            {"amount", "52000"}, 
-            {"baseCurrencyCode", "VND"}
-        }
-    );
-
-    Console.WriteLine(result);
     ```
 
-    En este código, usas el método **ImportPluginFromType** para importar tu complemento. Luego usas el método **InvokeAsync** para invocar la función de tu complemento. El método **InvokeAsync** toma el nombre del complemento, el nombre de la función y un diccionario de parámetros. Por último, imprima el resultado en la consola. A continuación, ejecute el código para asegurarse de que funciona.
+    A continuación, vamos a probar el complemento.
 
-1. Abre el terminal seleccionando Terminal > Nuevo terminal.
+1. Haz clic con el botón derecho en el archivo **Program.cs** y haz clic en "Abrir en terminal integrado"
 
-1. En el terminal, escriba `dotnet run`. Debería ver la siguiente salida:
+1. En el terminal, escriba `dotnet run`. 
+
+    Escribe una solicitud de aviso para convertir la divisa, por ejemplo, "¿Cuánto es 10 USD en Hong Kong?"
+
+    Deberías ver un resultado parecido a los siguiente:
 
     ```output
-    $52000 VND is approximately $2.13 in US Dollars (USD)
+    Assistant: 10 USD is equivalent to 77.70 Hong Kong dollars (HKD).
     ```
 
-    Ahora que el complemento funciona correctamente, vamos a crear un mensaje de lenguaje natural que pueda detectar las divisas y la cantidad que el usuario quiere convertir.
+## Ejercicio 2: Creación de un aviso de Handlebars
 
-### Tarea 3: Análisis de la entrada del usuario con una indicación
-
-En esta tarea, creará un mensaje que analiza la entrada del usuario para identificar la divisa de destino, la divisa base y la cantidad que se va a convertir.
-
-1. Creación de una nueva carpeta denominada **GetTargetCurrencies** en la carpeta **Prompts**
-
-1. En la carpeta **GetTargetCurrencies**, crea un nuevo archivo denominado **config.json**
-
-1. Introduce el siguiente texto en el archivo **config.json**:
-
-    ```output
-    {
-        "schema": 1,
-        "type": "completion",
-        "description": "Identify the target currency, base currency, and amount to convert",
-        "execution_settings": {
-            "default": {
-                "max_tokens": 800,
-                "temperature": 0
-            }
-        },
-        "input_variables": [
-            {
-                "name": "input",
-                "description": "Text describing some currency amount to convert",
-                "required": true
-            }
-        ]
-    }
-    ```
-
-1. En la carpeta **GetTargetCurrencies**, crea un nuevo archivo denominado **skprompt.txt**
-
-1. Introduce el siguiente texto en el archivo **skprompt.txt**:
-
-    ```html
-    <message role="system">Identify the target currency, base currency, and 
-    amount from the user's input in the format target|base|amount</message>
-
-    For example: 
-
-    <message role="user">How much in GBP is 750.000 VND?</message>
-    <message role="assistant">GBP|VND|750000</message>
-
-    <message role="user">How much is 60 USD in New Zealand Dollars?</message>
-    <message role="assistant">NZD|USD|60</message>
-
-    <message role="user">How many Korean Won is 33,000 yen?</message>
-    <message role="assistant">KRW|JPY|33000</message>
-
-    <message role="user">{{$input}}</message>
-    <message role="assistant">target|base|amount</message>
-    ```
-
-### Tarea 4: Compruebe su trabajo
-
-En esta tarea, ejecute su aplicación y verifique que su código funciona correctamente. 
-
-1. Prueba tu nueva solicitud actualizando tu archivo **Program.cs** con el siguiente código:
-
-    ```c#
-    kernel.ImportPluginFromType<CurrencyConverter>();
-    kernel.ImportPluginFromType<ConversationSummaryPlugin>();
-    var prompts = kernel.ImportPluginFromPromptDirectory("Prompts");
-
-    var result = await kernel.InvokeAsync(prompts["GetTargetCurrencies"],
-        new() {
-            {"input", "How many Australian Dollars is 140,000 Korean Won worth?"}
-        }
-    );
-
-    Console.WriteLine(result);
-    ```
-
-1. Escriba `dotnet run` en el terminal. Debería ver la salida siguiente:
-
-    ```output
-    AUD|KRW|140000
-    ```
-
-    > [!NOTE]
-    > Si el código no genera la salida esperada, puede revisar el código en la carpeta **Solution**. Es posible que tengas que ajustar la solicitud en el archivo **skprompt.txt** para generar resultados más exactos.
-
-Ahora tienes un complemento que puede convertir una cantidad de una divisa a otra, y una solicitud que se puede usar para analizar la entrada del usuario en un formato que la función **ConvertAmount** puede usar. Esto permitirá a los usuarios convertir fácilmente importes de divisa mediante el agente de viajes de IA.
-
-## Ejercicio 2: Automatización de la selección de complementos en función de la intención del usuario
-
-En este ejercicio, detectará la intención del usuario y enrutará la conversación hacia los complementos que desee. Puede usar un complemento proporcionado para recuperar la intención del usuario. Comencemos.
+En este ejercicio, crearás una función a partir de un aviso de Handlebars. La función pedirá al LLM que cree un itenerario de viaje para el usuario. Comencemos.
 
 **Tiempo de finalización del ejercicio estimado**: 10 minutos
 
-### Tarea 1: Uso del complemento GetIntent
+### Tarea 1: Crear una función a partir de un aviso de Handlebars
+
+1. Agrega la siguiente directiva `using` al archivo **Program.cs**:
+
+    `using Microsoft.SemanticKernel.PromptTemplates.Handlebars;`
 
 1. Actualice el archivo **Program.cs** con el código siguiente:
 
     ```c#
-    kernel.ImportPluginFromType<CurrencyConverter>();
-    kernel.ImportPluginFromType<ConversationSummaryPlugin>();
-    var prompts = kernel.ImportPluginFromPromptDirectory("Prompts");
+    kernel.ImportPluginFromType<CurrencyConverterPlugin>();
 
-    Console.WriteLine("What would you like to do?");
-    var input = Console.ReadLine();
-
-    var intent = await kernel.InvokeAsync<string>(
-        prompts["GetIntent"], 
-        new() {{ "input",  input }}
-    );
-
+    string hbprompt = """
+        <message role="system">Instructions: Before providing the the user with a travel itenerary, ask how many days their trip is</message>
+        <message role="user">I'm going to {{city}}. Can you create an itenerary for me?</message>
+        <message role="assistant">Sure, how many days is your trip?</message>
+        <message role="user">{{input}}</message>
+        <message role="assistant">
+        """;
     ```
 
-    En este código, se usa la solicitud **GetIntent** para detectar la intención del usuario. A continuación, almacenaras la intención en una variable denominada **intent**. A continuación, enruta la intención a tu complemento **CurrencyConverter**.
+    En este código, crearás una solicitud de pocas etapas con el formato de plantilla de Handlebars. La solicitud guiará el modelo para recuperar más información del usuario antes de crear un itenerario de viaje.
 
-1. Agregue el siguiente código al archivo `Program.cs`:
-
-    ```c#
-    switch (intent) {
-        case "ConvertCurrency": 
-            var currencyText = await kernel.InvokeAsync<string>(
-                prompts["GetTargetCurrencies"], 
-                new() {{ "input",  input }}
-            );
-            var currencyInfo = currencyText!.Split("|");
-            var result = await kernel.InvokeAsync("CurrencyConverter", 
-                "ConvertAmount", 
-                new() {
-                    {"targetCurrencyCode", currencyInfo[0]}, 
-                    {"baseCurrencyCode", currencyInfo[1]},
-                    {"amount", currencyInfo[2]}, 
-                }
-            );
-            Console.WriteLine(result);
-            break;
-        default:
-            Console.WriteLine("Other intent detected");
-            break;
-    }
-    ```
-
-    El complemento **GetIntent** devuelve los siguientes valores: ConvertCurrency, SuggestDestinations, SuggestActivities, Translate, HelpfulPhrases, Unknown. Usas una instrucción de **modificador** para enrutar la intención del usuario al complemento apropiado. 
-    
-    Si la intención del usuario es convertir divisas, usa la solicitud **GetTargetCurrencies** para recuperar la información de la divisa. A continuación, usa el complemento **CurrencyConverter** para convertir el importe.
-
-    A continuación, agregará algunos casos para controlar las demás intenciones. Por ahora, vamos a usar la capacidad de llamada de función automática del SDK de Semantic Kernel para enrutar la intención a los complementos disponibles.
-
-1. Crea la configuración de llamada de función automática agregando el siguiente código a tu archivo **Program.cs**:
+1. Agregue el código siguiente al archivo **Program.cs**:
 
     ```c#
-    kernel.ImportPluginFromType<CurrencyConverter>();
-    kernel.ImportPluginFromType<ConversationSummaryPlugin>();
-    var prompts = kernel.ImportPluginFromPromptDirectory("Prompts");
-
-    OpenAIPromptExecutionSettings settings = new()
+    // Create the prompt template config using handlebars format
+    var templateFactory = new HandlebarsPromptTemplateFactory();
+    var promptTemplateConfig = new PromptTemplateConfig()
     {
-        ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions
+        Template = hbprompt,
+        TemplateFormat = "handlebars",
+        Name = "GetItenerary",
     };
 
-    Console.WriteLine("What would you like to do?");
-    var input = Console.ReadLine();
-    var intent = await kernel.InvokeAsync<string>(
-        prompts["GetIntent"], 
-        new() {{ "input",  input }}
-    );
+    // Create a plugin from the prompt
+    var promptFunction = kernel.CreateFunctionFromPrompt(promptTemplateConfig, templateFactory);
+    var iteneraryPlugin = kernel.CreatePluginFromFunctions("TravelItenerary", [promptFunction]);
+
+    // Add the new plugin to the kernel
+    kernel.Plugins.Add(iteneraryPlugin);
     ```
 
-    A continuación, agregue casos a las instrucciones del conmutador para las otras intenciones.
+    En este código, crearás una configuración de plantilla de Handlebars a partir de la solicitud. A continuación, crea una función de complemento para la solicitud y agrégala al kernel. Ahora estás preparado para invocar tu función.
 
-1. Actualice el archivo **Program.cs** con el código siguiente:
+1. Escribe `dotnet run` en el terminal para ejecutar el código.
+
+    Prueba la siguiente entrada para solicitar el LLM de un itinerario.
+
+    ```output
+    Assistant: How may I help you?
+    User: I'm going to Hong Kong, can you create an itenerary for me?
+    Assistant: Sure! How many days will you be staying in Hong Kong?
+    User: 10
+    Assistant: Great! Here's a 10-day itinerary for your trip to Hong Kong:
+    ...
+    ```
+
+    ¡Ahora ya has creado las bases de un asistente de viajes de inteligencia artificial! Vamos a usar indicaciones y complementos para agregar más características
+
+1.  Agregue el código siguiente al archivo **Program.cs**:
 
     ```c#
-    switch (intent) {
-        case "ConvertCurrency": 
-            // ...Code you entered previously...
-            break;
-        case "SuggestDestinations":
-        case "SuggestActivities":
-        case "HelpfulPhrases":
-        case "Translate":
-            var autoInvokeResult = await kernel.InvokePromptAsync(input!, new(settings));
-            Console.WriteLine(autoInvokeResult);
-            break;
-        default:
-            Console.WriteLine("Other intent detected");
-            break;
-    }
+    kernel.ImportPluginFromType<CurrencyConverterPlugin>();
+    kernel.ImportPluginFromType<FlightBookingPlugin>();
     ```
 
-    En este código, usa la configuración **AutoInvokeKernelFunctions** para llamar automáticamente a las funciones y solicitudes a las que se hace referencia en tu kernel. Si la intención del usuario es convertir divisas, el complemento **CurrencyConverter** realiza su tarea. 
+    Este complemento simula las reservas de vuelos con el archivo **flights.json** con detalles ficticios. A continuación, agrega algunas indicaciones adicionales del sistema al asistente.
+
+1.  Agregue el código siguiente al archivo **Program.cs**:
+
+    ```c#
+    // Setup the assistant chat
+    var history = new ChatHistory();
+    history.AddSystemMessage("The current date is 01/10/2025");
+    history.AddSystemMessage("You are a helpful travel assistant.");
+    history.AddSystemMessage("Before providing destination recommendations, ask the user about their budget.");
+    ```
+
+    Estas indicaciones ayudarán a crear una experiencia de usuario fluida y a simular el complemento de reserva de vuelos. Ya estás listo para probar el código.
+
+1. Escriba `dotnet run` en el terminal.
+
+    Prueba a escribir algunas de las indicaciones siguientes:
+
+    ```output
+    1. Can you give me some destination recommendations for Europe?
+    2. I want to go to Barcelona, can you create an itenerary for me?
+    3. How many Euros is 100 USD?
+    4. Can you book me a flight to Barcelona?
+    ```
+
+    Prueba otras entradas y ve cómo responde el asistente para viajes.
+
+## Ejercicio 3: Requerimiento del consentimiento del usuario para acciones
+
+En este ejercicio, agregarás una función de invocación de filtro que solicitará la aprobación del usuario antes de permitir que el agente reserve un vuelo en su nombre. Comencemos.
+
+### Tarea 1: Crear un filtro de invocación de función
+
+1. Crea un nuevo archivo denominado **PermissionFilter.cs**.
+
+1. En el nuevo archivo, escribe el código siguiente:
+
+    ```c#
+    #pragma warning disable SKEXP0001 
+    using Microsoft.SemanticKernel;
     
-    Si la intención del usuario es obtener sugerencias de destinos o actividades, traducir una frase u obtener frases útiles en un idioma, la configuración **AutoInvokeKernelFunctions** llama automáticamente a los complementos existentes que se incluyeron en el código del proyecto.
-
-    También puede agregar código para ejecutar la entrada del usuario como una solicitud al modelo de lenguaje de gran tamaño (LLM) si no entra en ninguno de estos casos de intención.
-
-1. Actualice el caso predeterminado con el código siguiente:
-
-    ```c#
-    default:
-        Console.WriteLine("Sure, I can help with that.");
-        var otherIntentResult = await kernel.InvokePromptAsync(input!, new(settings));
-        Console.WriteLine(otherIntentResult);
-        break;
-    ```
-
-    Ahora, si el usuario tiene una intención diferente, el LLM puede controlar la solicitud del usuario. ¡Pruébelo!
-
-### Tarea 2: Compruebe su trabajo
-
-En esta tarea, ejecute su aplicación y verifique que su código funciona correctamente. 
-
-1. Escriba `dotnet run` en el terminal. Cuando se le solicite, escriba un texto similar a la siguiente solicitud:
-
-    ```output
-    What would you like to do?
-    How many TTD is 50 Qatari Riyals?    
-    ```
-
-1. Debería ver una salida similar a la siguiente respuesta:
-
-    ```output
-    $50 QAR is approximately $93.10 in Trinidadian Dollars (TTD)
-    ```
-
-1. Escriba `dotnet run` en el terminal. Cuando se le solicite, escriba un texto similar a la siguiente solicitud:
-
-    ```output
-    What would you like to do?
-    I want to go somewhere that has lots of warm sunny beaches and delicious, spicy food!
-    ```
-
-1. Debería ver una salida similar a la siguiente respuesta:
-
-    ```output
-    Based on your preferences for warm sunny beaches and delicious, spicy food, I have a few destination recommendations for you:
-
-    1. Thailand: Known for its stunning beaches, Thailand offers a perfect combination of relaxation and adventure. You can visit popular beach destinations like Phuket, Krabi, or Koh Samui, where you'll find crystal-clear waters and white sandy shores. Thai cuisine is famous for its spiciness, so you'll have plenty of mouthwatering options to try, such as Tom Yum soup, Pad Thai, and Green Curry.
-
-    2. Mexico: Mexico is renowned for its beautiful coastal regions and vibrant culture. You can explore destinations like Cancun, Playa del Carmen, or Tulum, which boast stunning beaches along the Caribbean Sea. Mexican cuisine is rich in flavors and spices, offering a wide variety of dishes like tacos, enchiladas, and mole sauces that will satisfy your craving for spicy food.
-
-    ...
-
-    These destinations offer a perfect blend of warm sunny beaches and delicious, spicy food, ensuring a memorable trip for you. Let me know if you need any further assistance or if you have any specific preferences for your trip!
-    ```
-
-1. Escriba `dotnet run` en el terminal. Cuando se le solicite, escriba un texto similar a la siguiente solicitud:
-
-    ```output
-    What would you like to do?
-    Can you give me a recipe for chicken satay?
-
-1. You should see a response similar to the following response:
-
-    ```output
-    Sure, I can help with that.
-    Certainly! Here's a recipe for chicken satay:
-
-    ...
-    ```
-
-    La intención debería estar enfocada a su caso predeterminado y el LLM debería controlar la solicitud de una receta de pollo satay.
-
-    > [!NOTE]
-    > Si el código no genera la salida esperada, puede revisar el código en la carpeta **Solución**.
-
-A continuación, modifiquemos la lógica de enrutamiento para proporcionar un historial de conversaciones a determinados complementos. Proporcionar el historial permite a los complementos recuperar respuestas más relevantes desde el punto de vista contextual a las solicitudes del usuario.
-
-### Tarea 3: Enrutamiento completo del complemento
-
-En este ejercicio, usará el historial de conversaciones para proporcionar contexto al modelo de lenguaje de gran tamaño (LLM). También ajustará el código para que permita al usuario continuar la conversación, al igual que un bot de chat real. Comencemos.
-
-1. Modifica el código para que use un bucle do-while para aceptar la entrada del usuario:
-
-    ```c#
-    string input;
-
-    do 
+    public class PermissionFilter : IFunctionInvocationFilter
     {
-        Console.WriteLine("What would you like to do?");
-        input = Console.ReadLine();
-
-        // ...
+        public async Task OnFunctionInvocationAsync(FunctionInvocationContext context, Func<FunctionInvocationContext, Task> next)
+        {
+            
+        }
     }
-    while (!string.IsNullOrWhiteSpace(input));
     ```
 
-    Ahora puede mantener la conversación en marcha hasta que el usuario escriba una línea en blanco.
+    >[!NOTE] 
+    > En la versión 1.30.0 del SDK de kernel semántico, los filtros de función están sujetos a cambios y requieren una supresión de advertencia. 
 
-1. Captura detalles sobre el viaje del usuario modificando el caso **SuggestDestinations**:
+    En este código, implementarás la interfaz `IFunctionInvocationFilter`. Siempre se llama al método `OnFunctionInvocationAsync` cada vez que se invoca una función desde un agente de IA.
 
-    ```c#
-    case "SuggestDestinations":
-        chatHistory.AppendLine("User:" + input);
-        var recommendations = await kernel.InvokePromptAsync(input!);
-        Console.WriteLine(recommendations);
-        break;
-    ```
-
-1. Usa los detalles del viaje en el caso **SugerirActividades** con el siguiente código:
+1. Agrega el código siguiente para detectar cuándo se invoca la función `book_flight`:
 
     ```c#
-     case "SuggestActivities":
-        var chatSummary = await kernel.InvokeAsync(
-            "ConversationSummaryPlugin", 
-            "SummarizeConversation", 
-            new() {{ "input", chatHistory.ToString() }});
-        break;
-    ```
-
-    En este código, usas la función integrada **SummarizeConversation** para resumir el chat con el usuario. A continuación, vamos a usar el resumen para sugerir actividades en el destino.
-
-1. Extiende el caso **SugerirActividades** con el siguiente código:
-
-    ```c#
-    var activities = await kernel.InvokePromptAsync(
-        input,
-        new () {
-            {"input", input},
-            {"history", chatSummary},
-            {"ToolCallBehavior", ToolCallBehavior.AutoInvokeKernelFunctions}
-    });
-
-    chatHistory.AppendLine("User:" + input);
-    chatHistory.AppendLine("Assistant:" + activities.ToString());
+    if ((context.Function.PluginName == "FlightBooking" && context.Function.Name == "book_flight"))
+    {
     
-    Console.WriteLine(activities);
-    break;
+    }
+
+    await next(context);
     ```
 
-    En este código, agregas **input** y **chatSummary** como argumentos de kernel. Después el kernel invoca la solicitud y la enruta al complemento **SuggestActivities**. Además, anexará la entrada del usuario y la respuesta del asistente al historial de chat, y se mostrarán los resultados. A continuación, debes agregar la variable **chatSummary** al complemento **SuggestActivities**.
+    Este código usa `FunctionInvocationContext` para determinar qué complemento y función se invocaron.
 
-1. Vaya a **Prompts/SuggestActivities/config.json** y abra el archivo en Visual Studio Code
-
-1. En **input_variables**, agrega una variable para el historial de chat:
-
-    ```json
-    "input_variables": [
-      {
-          "name": "history",
-          "description": "Some background information about the user",
-          "required": false
-      },
-      {
-          "name": "destination",
-          "description": "The destination a user wants to visit",
-          "required": true
-      }
-   ]
-   ```
-
-1. Vaya a **Prompts/SuggestActivities/skprompt.txt** y abra el archivo
-
-1. Reemplaza la mitad inicial del mensaje por la siguiente solicitud del sistema que usa la variable de historial de chat:
-
-    ```html 
-    You are an experienced travel agent. 
-    You are helpful, creative, and very friendly. 
-    Consider the traveler's background: {{$history}}
-    ```
-
-    Deje el resto del mensaje tal como está. Ahora el complemento usa el historial de chat para proporcionar contexto al LLM.
-
-### Tarea 4: Compruebe su trabajo
-
-En esta tarea, ejecutará la aplicación y comprobará que el código funciona correctamente.
-
-1. Compare los casos de modificador actualizados con el código siguiente:
+1. Agrega la siguiente lógica para solicitar el permiso del usuario para reservar el vuelo:
 
     ```c#
-    case "SuggestDestinations":
-            chatHistory.AppendLine("User:" + input);
-            var recommendations = await kernel.InvokePromptAsync(input!);
-            Console.WriteLine(recommendations);
-            break;
-    case "SuggestActivities":
+    if ((context.Function.PluginName == "FlightBooking" && context.Function.Name == "book_flight"))
+    {
+        Console.WriteLine("System Message: The agent requires an approval to complete this operation. Do you approve (Y/N)");
+        Console.Write("User: ");
+        string shouldProceed = Console.ReadLine()!;
 
-        var chatSummary = await kernel.InvokeAsync(
-            "ConversationSummaryPlugin", 
-            "SummarizeConversation", 
-            new() {{ "input", chatHistory.ToString() }});
+        if (shouldProceed != "Y")
+        {
+            context.Result = new FunctionResult(context.Result, "The operation was not approved by the user");
+            return;
+        }
+    }
 
-        var activities = await kernel.InvokePromptAsync(
-            input!,
-            new () {
-                {"input", input},
-                {"history", chatSummary},
-                {"ToolCallBehavior", ToolCallBehavior.AutoInvokeKernelFunctions}
-        });
-
-        chatHistory.AppendLine("User:" + input);
-        chatHistory.AppendLine("Assistant:" + activities.ToString());
-        
-        Console.WriteLine(activities);
-        break;
+    await next(context);
     ```
 
-1. Escriba `dotnet run` en el terminal. Cuando se le solicite, escriba texto similar al siguiente:
+1. Ve al archivo **Program.cs**.
+
+1. Agrega el filtro de permisos al kernel mediante el código siguiente:
+
+    ```c#
+    kernel.ImportPluginFromType<CurrencyConverterPlugin>();
+    kernel.ImportPluginFromType<FlightBookingPlugin>();
+    kernel.FunctionInvocationFilters.Add(new PermissionFilter());
+    ```
+
+1. Escriba `dotnet run` en el terminal.
+
+    Escribe una indicación para reservar un vuelo. Debería ver una respuesta similar a la siguiente:
 
     ```output
-    What would you like to do?
-    How much is 60 USD in new zealand dollars?
+    User: Find me a flight to Tokyo on the 19
+    Assistant: I found a flight to Tokyo on the 19th of January. The flight is with Air Japan and the price is $1200.
+    User: Y
+    System Message: The agent requires an approval to complete this operation. Do you approve (Y/N)
+    User: N
+    Assistant: I'm sorry, but I am unable to book the flight for you.
     ```
 
-1. Debe recibir un resultado similar al siguiente:
-
-    ```output
-    $60 USD is approximately $97.88 in New Zealand Dollars (NZD)
-    What would you like to do?
-    ```
-
-1. Escriba una solicitud para obtener sugerencias de destinos con algunas indicaciones de contexto, por ejemplo:
-
-    ```output
-    What would you like to do?
-    I'm planning an anniversary trip with my spouse, but they are currently using a wheelchair and accessibility is a must. What are some destinations that would be romantic for us?
-    ```
-
-1. Debe recibir algunos resultados con recomendaciones de destinos accesibles.
-
-1. Escriba una solicitud para sugerencias de actividades, por ejemplo:
-
-    ```output
-    What would you like to do?
-    What are some things to do in Barcelona?
-    ```
-
-1. Debe recibir recomendaciones que se ajusten al contexto anterior, por ejemplo, actividades accesibles en Barcelona similares a las siguientes:
-
-    ```output
-    1. Visit the iconic Sagrada Família: This breathtaking basilica is an iconic symbol of Barcelona's architecture and is known for its unique design by Antoni Gaudí.
-
-    2. Explore Park Güell: Another masterpiece by Gaudí, this park offers stunning panoramic views of the city, intricate mosaic work, and whimsical architectural elements.
-
-    3. Visit the Picasso Museum: Explore the extensive collection of artworks by the iconic painter Pablo Picasso, showcasing his different periods and styles.
-    ```
-
-    > [!NOTE]
-    > Si el código no genera la salida esperada, puede revisar el código en la carpeta **Solución**.
-
-Puede seguir probando la aplicación con diferentes indicaciones e indicaciones de contexto. Excelente trabajo. Ha proporcionado correctamente indicaciones de contexto al LLM y ha ajustado el código para permitir que el usuario continúe la conversación.
+    El agente debe requerir la aprobación del usuario antes de continuar con las reservas.
 
 ### Revisar
 
-En este laboratorio, ha creado un punto de conexión para el servicio de modelo de lenguaje grande (LLM), ha creado un objeto kernel semántico, ha ejecutado indicaciones mediante el SDK de kernel semántico, ha creado funciones y complementos de kernel semántico, y ha usado la funcionalidad de llamada automática del SDK de kernel semántico para enfocar la intención del usuario a los complementos adecuados. También ha proporcionado contexto al LLM mediante el historial de conversaciones y permitido al usuario continuar con la conversación. Enhorabuena por completar este laboratorio.
+En este laboratorio, creaste un punto de conexión para el servicio de modelo de lenguaje grande (LLM), creaste un objeto de kernel semántico y ejecutaste indicaciones mediante el SDK de kernel semántico. También has creado complementos y has aprovechado los mensajes del sistema para guiar el modelo. Enhorabuena por completar este laboratorio.
