@@ -4,14 +4,14 @@ lab:
   module: 'Module 01: Build your kernel'
 ---
 
-# Laboratorio: Completar un agente de viajes de IA
+# Laboratorio: Completar un asistente de viajes con IA
 # Manual de laboratorio para alumnos
 
-En este laboratorio, completará un agente de viajes de IA mediante el SDK de kernel semántico. Creará un punto de conexión para el servicio de modelo de lenguaje grande (LLM), creará funciones de kernel semántico y usará la funcionalidad de llamada automática de funciones del SDK de kernel semántico para enrutar la intención del usuario a los complementos adecuados, incluidos algunos complementos creados previamente que se han proporcionado. También proporcionará contexto al LLM mediante el historial de conversaciones y permitirá al usuario continuar con la conversación.
+En este laboratorio, completarás un asistente de viajes con IA mediante el SDK de kernel semántico. Creará un punto de conexión para el servicio de modelo de lenguaje grande (LLM), creará funciones de kernel semántico y usará la funcionalidad de llamada automática de funciones del SDK de kernel semántico para enrutar la intención del usuario a los complementos adecuados, incluidos algunos complementos creados previamente que se han proporcionado. También proporcionará contexto al LLM mediante el historial de conversaciones y permitirá al usuario continuar con la conversación.
 
 ## Escenario de laboratorio
 
-Usted es desarrollador de una agencia de viajes que se especializa en la creación de experiencias de viaje personalizadas para sus clientes. Se le ha encargado crear un agente de viajes de IA que ayude a los clientes a obtener más información sobre los destinos y las actividades del viaje. El agente de viajes de IA debe ser capaz de convertir importes de divisas, sugerir destinos y actividades, proporcionar frases útiles en diferentes idiomas y traducir. El agente de viajes de IA también debe ser capaz de proporcionar respuestas contextualmente relevantes a las solicitudes del usuario mediante el historial de conversaciones.
+Usted es desarrollador de una agencia de viajes que se especializa en la creación de experiencias de viaje personalizadas para sus clientes. Se te ha encargado crear un agente de viajes con IA que ayude a los clientes a obtener más información sobre los destinos y las actividades de sus viajes. El asistente de viajes con IA debe ser capaz de convertir importes en divisas, sugerir destinos y actividades, proporcionar frases útiles en diferentes idiomas y traducir frases. El asistente de viajes con IA también debe ser capaz de proporcionar respuestas contextualmente relevantes a las solicitudes del usuario mediante el historial de conversaciones.
 
 ## Objetivos
 
@@ -92,7 +92,7 @@ En este ejercicio, creará un punto de conexión para el servicio de modelo de l
 
 ### Tarea 2: Crear un complemento nativo
 
-En esta tarea, crearás un complemento de función nativo que puede convertir una cantidad de una divisa base a una divisa de destino.
+En esta tarea, crearás un complemento de función nativa que puede convertir una cantidad de una divisa base a una divisa de destino.
 
 1. Vuelva a su proyecto de Visual Studio Code.
 
@@ -106,29 +106,30 @@ En esta tarea, crearás un complemento de función nativo que puede convertir un
     }
     ```
 
-1. Ve al archivo denominado **CurrencyConverter.cs** en la carpeta **Plugins/ConvertCurrency**
+1. Ve al archivo denominado **CurrencyConverterPlugin.cs** en la carpeta **Plugins**
 
-1. En el archivo **CurrencyConverter.cs**, agrega el siguiente código para crear una función de complemento:
+1. En el archivo **CurrencyConverterPlugin.cs**, agrega el código siguiente en el comentario **Create a kernel function that gets the exchange rate**:
 
     ```c#
-    class CurrencyConverter
+    // Create a kernel function that gets the exchange rate
+    [KernelFunction("convert_currency")]
+    [Description("Converts an amount from one currency to another, for example USD to EUR")]
+    public static decimal ConvertCurrency(decimal amount, string fromCurrency, string toCurrency)
     {
-        [KernelFunction("convert_currency")]
-        [Description("Converts an amount from one currency to another, for example USD to EUR")]
-        public static decimal ConvertCurrency(decimal amount, string fromCurrency, string toCurrency)
-        {
-            decimal exchangeRate = GetExchangeRate(fromCurrency, toCurrency);
-            return amount * exchangeRate;
-        }
+        decimal exchangeRate = GetExchangeRate(fromCurrency, toCurrency);
+        return amount * exchangeRate;
     }
     ```
 
     En este código, usas el decorador **KernelFunction** para declarar tu función nativa. También usas el decorador **Descripción** para agregar una descripción de lo que hace la función. A continuación, agrega alguna lógica para convertir una cantidad determinada de una divisa a otra.
 
-1. En el archivo **Program.cs**, importa el nuevo complemento con el siguiente código:
+1. Abra el archivo **Program.cs**.
+
+1. Importa el complemento de conversión de divisas en el comentario **Add plugins to the kernel**:
 
     ```c#
-    kernel.ImportPluginFromType<CurrencyConverter>();
+    // Add plugins to the kernel
+    kernel.ImportPluginFromType<CurrencyConverterPlugin>();
     ```
 
     A continuación, vamos a probar el complemento.
@@ -147,7 +148,7 @@ En esta tarea, crearás un complemento de función nativo que puede convertir un
 
 ## Ejercicio 2: Creación de un aviso de Handlebars
 
-En este ejercicio, crearás una función a partir de un aviso de Handlebars. La función pedirá al LLM que cree un itenerario de viaje para el usuario. Comencemos.
+En este ejercicio, crearás una función a partir de un aviso de Handlebars. La función pedirá al LLM que cree un itinerario de viaje para el usuario. Comencemos.
 
 **Tiempo de finalización del ejercicio estimado**: 10 minutos
 
@@ -157,23 +158,22 @@ En este ejercicio, crearás una función a partir de un aviso de Handlebars. La 
 
     `using Microsoft.SemanticKernel.PromptTemplates.Handlebars;`
 
-1. Actualice el archivo **Program.cs** con el código siguiente:
+1. Agrega el código siguiente en el comentario **Create a handlebars prompt**:
 
     ```c#
-    kernel.ImportPluginFromType<CurrencyConverterPlugin>();
-
+    // Create a handlebars prompt
     string hbprompt = """
-        <message role="system">Instructions: Before providing the the user with a travel itenerary, ask how many days their trip is</message>
-        <message role="user">I'm going to {{city}}. Can you create an itenerary for me?</message>
+        <message role="system">Instructions: Before providing the user with a travel itinerary, ask how many days their trip is</message>
+        <message role="user">I'm going to {{city}}. Can you create an itinerary for me?</message>
         <message role="assistant">Sure, how many days is your trip?</message>
         <message role="user">{{input}}</message>
         <message role="assistant">
         """;
     ```
 
-    En este código, crearás una solicitud de pocas etapas con el formato de plantilla de Handlebars. La solicitud guiará el modelo para recuperar más información del usuario antes de crear un itenerario de viaje.
+    En este código, crearás una solicitud de pocas etapas con el formato de plantilla de Handlebars. La solicitud guiará al modelo para recuperar más información del usuario antes de crear un itinerario de viaje.
 
-1. Agregue el código siguiente al archivo **Program.cs**:
+1. Agrega el código siguiente en el comentario **Create the prompt template config using handlebars format**:
 
     ```c#
     // Create the prompt template config using handlebars format
@@ -182,26 +182,30 @@ En este ejercicio, crearás una función a partir de un aviso de Handlebars. La 
     {
         Template = hbprompt,
         TemplateFormat = "handlebars",
-        Name = "GetItenerary",
+        Name = "GetItinerary",
     };
-
-    // Create a plugin from the prompt
-    var promptFunction = kernel.CreateFunctionFromPrompt(promptTemplateConfig, templateFactory);
-    var iteneraryPlugin = kernel.CreatePluginFromFunctions("TravelItenerary", [promptFunction]);
-
-    // Add the new plugin to the kernel
-    kernel.Plugins.Add(iteneraryPlugin);
     ```
 
-    En este código, crearás una configuración de plantilla de Handlebars a partir de la solicitud. A continuación, crea una función de complemento para la solicitud y agrégala al kernel. Ahora estás preparado para invocar tu función.
+    En este código, crearás una configuración de plantilla de Handlebars a partir de la solicitud. Puedes usarlo para crear una función de complemento.
+
+1. Agrega el código siguiente en el comentario **Create a plugin function from the prompt**: 
+
+    ```c#
+    // Create a plugin function from the prompt
+    var promptFunction = kernel.CreateFunctionFromPrompt(promptTemplateConfig, templateFactory);
+    var itineraryPlugin = kernel.CreatePluginFromFunctions("TravelItinerary", [promptFunction]);
+    kernel.Plugins.Add(itineraryPlugin);
+    ```
+
+    Este código crea una función de complemento para la solicitud y la agrega al kernel. Ahora estás preparado para invocar tu función.
 
 1. Escribe `dotnet run` en el terminal para ejecutar el código.
 
-    Prueba la siguiente entrada para solicitar el LLM de un itinerario.
+    Prueba la siguiente entrada para solicitar al LLM un itinerario.
 
     ```output
     Assistant: How may I help you?
-    User: I'm going to Hong Kong, can you create an itenerary for me?
+    User: I'm going to Hong Kong, can you create an itinerary for me?
     Assistant: Sure! How many days will you be staying in Hong Kong?
     User: 10
     Assistant: Great! Here's a 10-day itinerary for your trip to Hong Kong:
@@ -210,20 +214,20 @@ En este ejercicio, crearás una función a partir de un aviso de Handlebars. La 
 
     ¡Ahora ya has creado las bases de un asistente de viajes de inteligencia artificial! Vamos a usar indicaciones y complementos para agregar más características
 
-1.  Agregue el código siguiente al archivo **Program.cs**:
+1.  Agrega el complemento de reserva de vuelos en el comentario **Add plugins to the kernel**:
 
     ```c#
+    // Add plugins to the kernel
     kernel.ImportPluginFromType<CurrencyConverterPlugin>();
     kernel.ImportPluginFromType<FlightBookingPlugin>();
     ```
 
     Este complemento simula las reservas de vuelos con el archivo **flights.json** con detalles ficticios. A continuación, agrega algunas indicaciones adicionales del sistema al asistente.
 
-1.  Agregue el código siguiente al archivo **Program.cs**:
+1.  Agrega el código siguiente en el comentario **Add system messages to the chat**:
 
     ```c#
-    // Setup the assistant chat
-    var history = new ChatHistory();
+    // Add system messages to the chat
     history.AddSystemMessage("The current date is 01/10/2025");
     history.AddSystemMessage("You are a helpful travel assistant.");
     history.AddSystemMessage("Before providing destination recommendations, ask the user about their budget.");
@@ -237,7 +241,7 @@ En este ejercicio, crearás una función a partir de un aviso de Handlebars. La 
 
     ```output
     1. Can you give me some destination recommendations for Europe?
-    2. I want to go to Barcelona, can you create an itenerary for me?
+    2. I want to go to Barcelona, can you create an itinerary for me?
     3. How many Euros is 100 USD?
     4. Can you book me a flight to Barcelona?
     ```
@@ -246,7 +250,7 @@ En este ejercicio, crearás una función a partir de un aviso de Handlebars. La 
 
 ## Ejercicio 3: Requerimiento del consentimiento del usuario para acciones
 
-En este ejercicio, agregarás una función de invocación de filtro que solicitará la aprobación del usuario antes de permitir que el agente reserve un vuelo en su nombre. Comencemos.
+En este ejercicio, agregarás una función de invocación de filtro que solicitará la aprobación del usuario antes de permitir que el asistente reserve un vuelo en su nombre. Comencemos.
 
 ### Tarea 1: Crear un filtro de invocación de función
 
@@ -262,7 +266,9 @@ En este ejercicio, agregarás una función de invocación de filtro que solicita
     {
         public async Task OnFunctionInvocationAsync(FunctionInvocationContext context, Func<FunctionInvocationContext, Task> next)
         {
+            // Check the plugin and function names
             
+            await next(context);
         }
     }
     ```
@@ -270,17 +276,18 @@ En este ejercicio, agregarás una función de invocación de filtro que solicita
     >[!NOTE] 
     > En la versión 1.30.0 del SDK de kernel semántico, los filtros de función están sujetos a cambios y requieren una supresión de advertencia. 
 
-    En este código, implementarás la interfaz `IFunctionInvocationFilter`. Siempre se llama al método `OnFunctionInvocationAsync` cada vez que se invoca una función desde un agente de IA.
+    En este código, implementarás la interfaz `IFunctionInvocationFilter`. Siempre se llama al método `OnFunctionInvocationAsync` cuando se invoca una función desde un asistente de IA.
 
 1. Agrega el código siguiente para detectar cuándo se invoca la función `book_flight`:
 
     ```c#
-    if ((context.Function.PluginName == "FlightBooking" && context.Function.Name == "book_flight"))
+    // Check the plugin and function names
+    if ((context.Function.PluginName == "FlightBookingPlugin" && context.Function.Name == "book_flight"))
     {
-    
-    }
+        // Request user approval
 
-    await next(context);
+        // Proceed if approved
+    }
     ```
 
     Este código usa `FunctionInvocationContext` para determinar qué complemento y función se invocaron.
@@ -288,29 +295,25 @@ En este ejercicio, agregarás una función de invocación de filtro que solicita
 1. Agrega la siguiente lógica para solicitar el permiso del usuario para reservar el vuelo:
 
     ```c#
-    if ((context.Function.PluginName == "FlightBooking" && context.Function.Name == "book_flight"))
+    // Request user approval
+    Console.WriteLine("System Message: The assistant requires an approval to complete this operation. Do you approve (Y/N)");
+    Console.Write("User: ");
+    string shouldProceed = Console.ReadLine()!;
+
+    // Proceed if approved
+    if (shouldProceed != "Y")
     {
-        Console.WriteLine("System Message: The agent requires an approval to complete this operation. Do you approve (Y/N)");
-        Console.Write("User: ");
-        string shouldProceed = Console.ReadLine()!;
-
-        if (shouldProceed != "Y")
-        {
-            context.Result = new FunctionResult(context.Result, "The operation was not approved by the user");
-            return;
-        }
+        context.Result = new FunctionResult(context.Result, "The operation was not approved by the user");
+        return;
     }
-
-    await next(context);
     ```
 
 1. Ve al archivo **Program.cs**.
 
-1. Agrega el filtro de permisos al kernel mediante el código siguiente:
+1. Agrega el código siguiente en el comentario **Add filters to the kernel**:
 
     ```c#
-    kernel.ImportPluginFromType<CurrencyConverterPlugin>();
-    kernel.ImportPluginFromType<FlightBookingPlugin>();
+    // Add filters to the kernel
     kernel.FunctionInvocationFilters.Add(new PermissionFilter());
     ```
 
@@ -322,13 +325,13 @@ En este ejercicio, agregarás una función de invocación de filtro que solicita
     User: Find me a flight to Tokyo on the 19
     Assistant: I found a flight to Tokyo on the 19th of January. The flight is with Air Japan and the price is $1200.
     User: Y
-    System Message: The agent requires an approval to complete this operation. Do you approve (Y/N)
+    System Message: The assistant requires an approval to complete this operation. Do you approve (Y/N)
     User: N
     Assistant: I'm sorry, but I am unable to book the flight for you.
     ```
 
-    El agente debe requerir la aprobación del usuario antes de continuar con las reservas.
+    El asistente debe requerir la aprobación del usuario antes de continuar con las reservas.
 
 ### Revisar
 
-En este laboratorio, creaste un punto de conexión para el servicio de modelo de lenguaje grande (LLM), creaste un objeto de kernel semántico y ejecutaste indicaciones mediante el SDK de kernel semántico. También has creado complementos y has aprovechado los mensajes del sistema para guiar el modelo. Enhorabuena por completar este laboratorio.
+En este laboratorio, creaste un punto de conexión para el servicio de modelo de lenguaje grande (LLM), creaste un objeto de kernel semántico y ejecutaste indicaciones mediante el SDK de kernel semántico. También has creado complementos y has aprovechado los mensajes del sistema para guiar al modelo. Enhorabuena por completar este laboratorio.
