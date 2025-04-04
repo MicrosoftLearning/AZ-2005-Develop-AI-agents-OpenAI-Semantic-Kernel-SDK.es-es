@@ -189,7 +189,7 @@ En esta tarea, crearás un complemento que te permite agregar canciones a la lis
 
 1. Ve al archivo **Program.cs**.
 
-1. Agrega el código siguiente en **Importar complementos al kernel**:
+1. Agrega el código siguiente en el comentario **Importar complementos al kernel**:
 
     ```c#
     // Import plugins to the kernel
