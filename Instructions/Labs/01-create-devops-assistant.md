@@ -1,14 +1,11 @@
 ---
 lab:
-  title: Creación de un asistente de IA con kernel semántico
-  description: Aprende a usar kernel semántico para crear un asistente de IA generativa que pueda realizar tareas de DevOps.
+  title: Desarrollo de un asistente de Devops con el SDK de kernel semántico
 ---
 
-# Creación de un asistente de IA con kernel semántico
+# Desarrollo de un asistente de Devops con el SDK de kernel semántico
 
-En este laboratorio, desarrollarás el código para un asistente impulsado por inteligencia artificial diseñado para automatizar las operaciones de desarrollo y ayudar a simplificar las tareas. Usarás el SDK de kernel semántico para crear el asistente de IA y conectarlo al servicio de modelo de lenguaje grande (LLM). El SDK de kernel semántico te permite crear una aplicación inteligente que pueda interactuar con el servicio LLM, responder a consultas en lenguaje natural y proporcionar información personalizada al usuario. Para este ejercicio, se proporcionan funciones simuladas para representar tareas de DevOps típicas. Comencemos.
-
-Este ejercicio dura aproximadamente **30** minutos.
+En este laboratorio, crearás el código para un asistente de IA. Usarás el SDK de kernel semántico para crear el asistente de IA y conectarlo al servicio de modelo de lenguaje grande (LLM). El SDK de kernel semántico permite crear una aplicación inteligente que pueda interactuar con el servicio LLM y proporcionar recomendaciones personalizadas al usuario.
 
 ## Implementación de un modelo de finalización de chat
 
@@ -22,7 +19,7 @@ Este ejercicio dura aproximadamente **30** minutos.
 
 1. Selecciona **Crear nueva implementación** y después **desde modelos base**.
 
-1. Busca **gpt-4o** en la lista de modelos, selecciona y confirma.
+1. Busca **gpt-4o** en la lista de modelos y después selecciónalo y confírmalo.
 
 1. Escribe un nombre para la implementación y deja las opciones predeterminadas.
 
@@ -245,7 +242,7 @@ Este ejercicio dura aproximadamente **30** minutos.
 
     > **Nota**: en la mayoría de los escenarios, el uso de *inicio de sesión de az* será suficiente. Sin embargo, si tienes suscripciones en varios inquilinos, es posible que tengas que especificar el inquilino mediante el parámetro *--tenant*. Consulta [Inicio de sesión en Azure de forma interactiva mediante la CLI de Azure](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) para obtener más información.
 
-1. Cuando se te solicite, sigue las instrucciones para abrir la página de inicio de sesión en una nueva pestaña y escribe el código de autenticación proporcionado y las credenciales de Azure. Después, completa el proceso de inicio de sesión en la línea de comandos y selecciona la suscripción que contiene tu centro de Fundición de IA de Azure si se te solicita.
+1. Cuando se te solicite, sigue las instrucciones para abrir la página de inicio de sesión en una nueva pestaña y escribe el código de autenticación proporcionado y las credenciales de Azure. A continuación, completa el proceso de inicio de sesión en la línea de comandos y selecciona la suscripción que contiene el centro de Fundición de IA de Azure si se te solicita.
 
 1. Después de iniciar sesión, escribe el siguiente comando para ejecutar la aplicación:
 
@@ -460,7 +457,6 @@ Este ejercicio dura aproximadamente **30** minutos.
 
     **Python**
     ```python
-    # Create a function filter
     async def permission_filter(context: FunctionInvocationContext, next: Callable[[FunctionInvocationContext], Awaitable[None]]) -> None:
         await next(context)
         result = context.result
